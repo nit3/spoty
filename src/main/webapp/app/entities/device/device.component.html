@@ -1,0 +1,69 @@
+<div>
+    <h2 id="page-heading">
+        <span>Devices</span>
+
+        <button id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-device" [routerLink]="['/device/new']">
+            <fa-icon icon="plus"></fa-icon>
+            <span>
+            Create a new Device
+            </span>
+        </button>
+    </h2>
+
+    <jhi-alert-error></jhi-alert-error>
+
+    <jhi-alert></jhi-alert>
+
+    <div class="alert alert-warning" id="no-result" *ngIf="devices?.length === 0">
+        <span>No devices found</span>
+    </div>
+
+    <div class="table-responsive" id="entities" *ngIf="devices && devices.length > 0">
+        <table class="table table-striped" aria-describedby="page-heading">
+            <thead>
+                <tr>
+                    <th scope="col" ><span>ID</span></th>
+                    <th scope="col" ><span>Name</span></th>
+                    <th scope="col" ><span>Model</span></th>
+                    <th scope="col" ><span>Port Number</span></th>
+                    <th scope="col" ><span>Emulator Name</span></th>
+                    <th scope="col" ><span>Status</span></th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let device of devices ;trackBy: trackId">
+                    <td><a [routerLink]="['/device', device.id, 'view']">{{ device.id }}</a></td>
+                    <td>{{ device.name }}</td>
+                    <td>{{ device.model }}</td>
+                    <td>{{ device.portNumber }}</td>
+                    <td>{{ device.emulatorName }}</td>
+                    <td>{{ device.status }}</td>
+                    <td class="text-right">
+                        <div class="btn-group">
+                            <button type="submit"
+                                    [routerLink]="['/device', device.id, 'view']"
+                                    class="btn btn-info btn-sm">
+                                <fa-icon icon="eye"></fa-icon>
+                                <span class="d-none d-md-inline">View</span>
+                            </button>
+
+                            <button type="submit"
+                                    [routerLink]="['/device', device.id, 'edit']"
+                                    class="btn btn-primary btn-sm">
+                                <fa-icon icon="pencil-alt"></fa-icon>
+                                <span class="d-none d-md-inline">Edit</span>
+                            </button>
+
+                            <button type="submit" (click)="delete(device)"
+                                    class="btn btn-danger btn-sm">
+                                <fa-icon icon="times"></fa-icon>
+                                <span class="d-none d-md-inline">Delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
