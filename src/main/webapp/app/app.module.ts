@@ -13,13 +13,14 @@ import { NavbarComponent } from './layouts/navbar/navbar.component';
 import { FooterComponent } from './layouts/footer/footer.component';
 import { PageRibbonComponent } from './layouts/profiles/page-ribbon.component';
 import { ErrorComponent } from './layouts/error/error.component';
-
+import { SpotifyModule } from 'app/spotify/spotify.module';
 @NgModule({
   imports: [
     BrowserModule,
     SpotySharedModule,
     SpotyCoreModule,
     SpotyHomeModule,
+    SpotifyModule,
     // jhipster-needle-angular-add-module JHipster will add new module here
     SpotyEntityModule,
     SpotyAppRoutingModule,

@@ -51,6 +51,7 @@ public class CacheConfiguration {
             createCache(cm, com.spoty.app.domain.PersistentToken.class.getName());
             createCache(cm, com.spoty.app.domain.User.class.getName() + ".persistentTokens");
             createCache(cm, com.spoty.app.domain.Device.class.getName());
+            createCache(cm, com.spoty.app.domain.SpotifyAccount.class.getName());
             // jhipster-needle-ehcache-add-entry
         };
     }
