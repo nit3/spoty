@@ -1,6 +1,7 @@
 package com.spoty.app.web.rest;
 
 import com.spoty.app.domain.Device;
+import com.spoty.app.domain.SpotifyPlay;
 import com.spoty.app.repository.DeviceRepository;
 import com.spoty.app.service.AvdService;
 import com.spoty.app.web.rest.errors.BadRequestAlertException;
@@ -56,11 +57,59 @@ public class DeviceResource {
             throw new BadRequestAlertException("A new device cannot already have an ID", ENTITY_NAME, "idexists");
         }
         avdService.create(device);
-        Device result = deviceRepository.save(device);
+        avdService.start(device);
+        var result = deviceRepository.save(device);
+
         return ResponseEntity.created(new URI("/api/devices/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
+
+    @PostMapping("/devices/play")
+    public void createDevicePlay(@RequestBody SpotifyPlay spotifyPlay) throws URISyntaxException {
+        var device = new Device();
+        device.setPortNumber(5554);
+        device.setEmulatorName("play-");
+        device.setName("play-");
+        Device result = null;
+        var conCount = 0;
+        var totalCount = 0;
+        var port = 5554;
+        var killPort = 5554;
+        var maxPort = 2*spotifyPlay.getMax() +5554;
+        while (totalCount < spotifyPlay.getCount()){
+            if(conCount < spotifyPlay.getMax())
+            {
+                device.setEmulatorName(device.getEmulatorName()+totalCount);
+                device.setPortNumber(port);
+                avdService.create(device);
+                avdService.start(device);
+                deviceRepository.save(device);
+                totalCount++;
+                conCount++;
+                port += 2;
+                if(port >= maxPort)
+                    port = 5554;
+            }else
+            {
+                var mod = totalCount % conCount;
+                System.out.println("MOD: "+mod);
+                device.setPortNumber(killPort);
+                device.setEmulatorName(device.getEmulatorName()+totalCount);
+                avdService.stop(device);
+                avdService.delete(device);
+                conCount--;
+                killPort += 2;
+                if(killPort >= maxPort)
+                    killPort = 5554;
+            }
+            device.setEmulatorName("play-");
+            device.setName("play-");
+            device.setPortNumber(5554);
+        }
+    }
+
+
 
     /**
      * {@code PUT  /devices} : Updates an existing device.

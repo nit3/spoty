@@ -1,7 +1,6 @@
 package com.spoty.app.cmd;
 
 import com.spoty.app.service.UserService;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -14,7 +13,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-@NoArgsConstructor
 public class CommandLine {
     private static final Logger log = LoggerFactory.getLogger(CommandLine.class);
     // for linux should be "/bin/bash". For windows should be "cmd.exe"
@@ -23,6 +21,8 @@ public class CommandLine {
     // for linux should be "-ic". For windows should be "/c"
     private static final String interactive = "/c";
 
+
+    public CommandLine(){}
   /**
    * Execute the specified command using /bin/bash shell.
    *
@@ -52,13 +52,13 @@ public class CommandLine {
   public static List<String> runWithResult(String command) {
     log.debug("executing command: " + command);
     try {
-      ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-ic", command);
+      ProcessBuilder builder = new ProcessBuilder(cmd, interactive, command);
       builder.redirectErrorStream(true);
       Process process = builder.start();
       // allow time for sub process to detach. Might need to adjust for slower servers
       process.waitFor(5, TimeUnit.SECONDS);
       return IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8)
-          .lines().skip(2).filter(s -> !s.isEmpty()).collect(Collectors.toList());
+          .lines().filter(s -> !s.isEmpty()).collect(Collectors.toList());
     } catch (IOException | InterruptedException e) {
       e.printStackTrace();
       return Collections.emptyList();

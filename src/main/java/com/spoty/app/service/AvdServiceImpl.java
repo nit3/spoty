@@ -1,5 +1,6 @@
 package com.spoty.app.service;
 
+import com.spoty.app.cmd.AdbCmdBuilder;
 import com.spoty.app.cmd.AvdManagerCmdBuilder;
 import com.spoty.app.cmd.CommandLine;
 import com.spoty.app.cmd.EmulatorCmdBuilder;
@@ -11,6 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class AvdServiceImpl implements AvdService{
@@ -47,6 +51,7 @@ public class AvdServiceImpl implements AvdService{
         builder.setPortRange(device.getPortNumber(), device.getPortNumber() + 1);
         boolean executed = CommandLine.run(builder.build());
         String message = "Created device : " + device.getName();
+        this.waitForStatus(device, "stopped");
         if(!executed){
             message = "Couldn't create device: " + device.getName();
             log.error(message);
@@ -60,8 +65,35 @@ public class AvdServiceImpl implements AvdService{
             .setValue(device);
     }
 
+    private boolean waitForStatus(Device device, String status)
+    {
+        final AdbCmdBuilder builder = new AdbCmdBuilder();
+        builder.setEmulator("emulator-"+device.getPortNumber());
+        builder.checkBootAnimation();
+        List<String> result ;
+        boolean found = false;
+        do
+        {
+            result = CommandLine.runWithResult(builder.build());
+            for (String s: result) {
+                System.out.println(s);
+                found = s.contains(status);
+            }
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }while (!found);
+        return true;
+    }
+
     @Override
     public OperationResult<Device> delete(Device device) {
+        final AvdManagerCmdBuilder builder = new AvdManagerCmdBuilder("delete");
+        builder.setName(device.getEmulatorName());
+        boolean executed = CommandLine.run(builder.build());
+        waitForStatus(device, "not found");
         return null;
     }
 
@@ -72,7 +104,17 @@ public class AvdServiceImpl implements AvdService{
 
     @Override
     public OperationResult<Device> stop(Device device) {
-        return null;
+        AdbCmdBuilder builder = new AdbCmdBuilder();
+        builder.setEmulator("emulator-"+device.getPortNumber());
+        boolean executed = CommandLine.run(builder.stopEmulator());
+        if (executed) {
+            return new OperationResult<Device>()
+                .setCode(OperationCode.SUCCESS)
+                .setMessage("Device stopped successfully");
+        }
+        return new OperationResult<Device>()
+            .setCode(OperationCode.GENERIC_ERROR)
+            .setMessage("Couldn't stop the device");
     }
 
     @Override
