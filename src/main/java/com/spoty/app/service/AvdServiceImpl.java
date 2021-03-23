@@ -47,7 +47,7 @@ public class AvdServiceImpl implements AvdService{
         final EmulatorCmdBuilder builder = new EmulatorCmdBuilder();
         builder.setAvd(device.getEmulatorName());
         builder.disableBootAnimation();
-        builder.useHostGpu();
+        builder.swiftShader();
         builder.setPortRange(device.getPortNumber(), device.getPortNumber() + 1);
         boolean executed = CommandLine.run(builder.build());
         String message = "Created device : " + device.getName();

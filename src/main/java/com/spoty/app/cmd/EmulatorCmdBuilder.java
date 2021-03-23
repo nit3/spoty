@@ -67,6 +67,15 @@ public class EmulatorCmdBuilder {
     return this;
   }
 
+  public EmulatorCmdBuilder swiftShader()
+  {
+      this.command.append(" ");
+      this.command.append("-gpu");
+      this.command.append(" ");
+      this.command.append("swiftshader_indirect");
+      return this;
+  }
+
   /**
    * Set the skin for emulator (only cosmetic).
    *
